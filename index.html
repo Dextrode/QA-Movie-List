@@ -12,7 +12,9 @@
     <div id="spinner"><!-- Loading Spinner --></div>
 	<h1>Popular Movies</h1>
     <h2>Watch List</h2>
-    <ul id="div1"></ul>
+    <ul id="div1">
+
+    </ul>
     <form id="form">
         <input class="search" id="search" placeholder="Search" type="text">
     <div id="movie-container" class="data-container"></div>
@@ -23,9 +25,9 @@
         // Root of the Image
         const imgRoot = 'https://image.tmdb.org/t/p/w200';
 
-        
 
         loadList(null);
+
     
         function loadList(searchParam) {
             // loads the spinner when text is pushed through 
@@ -76,15 +78,10 @@
                 }); 
         }
 
-        let listArray = [];
 
-        var myId
-
-        var movieId
-
-        var clickCounter = 0;
-
-
+        const listArray = [];
+        const listSet = new Set(listArray);
+        const newDiv = document.createElement("li");
 
         // Using addToContainer function, pass the data from the endpoint and call "data" and set it as "result"
         function addToContainer(result) {
@@ -139,10 +136,7 @@
                 releaseDate.classList.add('date');
 
 
-
-                // *** --- NEW CODE --- ***
-
-                
+                // *** --- NEW CODE START --- ***
 
                 var movieId = document.createElement('button');
                 movieId.setAttribute("data-title", result[0].results[i].title)
@@ -152,106 +146,62 @@
 
                 movieId.addEventListener("click", function(event){
                     event.preventDefault() //Dont do normal thing (stops refreshing page)
-                    // alert("hi")
+
                     var targetElement = event.target || event.srcElement;
                     console.log(targetElement.id);
 
-                    // console.log(deleteMovies);
 
-                    // function isOnList(value) {
-                    //     return value = targetElement.id;
-                    // }
+                    if(listSet.has(targetElement.id)) {
+                
+                        listSet.delete(targetElement.id);
 
-                    if(listArray.includes(targetElement.id) === false) {
-
-                        if (listArray.length >=6 ) {
-                            alert("6 Movie limit")
-                        } else {
-                            listArray.push(targetElement.id)
-                            console.log(listArray);
-
-                            const newDiv = document.createElement("li");
-
-                            // and give it some content
-                            const newContent = document.createTextNode(targetElement.getAttribute('data-title'));
-
-                            // add the text node to the newly created div
-                            newDiv.appendChild(newContent);
-
-                            // add the newly created element and its content into the DOM
-                            const currentDiv = document.getElementById("div1");
-                            document.body.insertBefore(newDiv, currentDiv);
-
-                            // debugger;
-
-                        }
+                        const element = document.getElementById(targetElement.id).remove();
+                        console.log(listSet);
                         
                     } else {
-                        alert("Already Added")
+                        if (listSet.size >=6 ) {
+                            alert("6 Movie limit")
+                        } else {
+                            listSet.add(targetElement.id)
+                            console.log(listSet);
 
-                        
+                            // and give it some content
+                            // add the text node to the newly created div
+                            const newDiv = document.createElement("li");
+                            newDiv.id = targetElement.id;
+                            // add the newly created element and its content into the DOM
+                            const newContent = document.createTextNode(targetElement.getAttribute('data-title'));
 
-                        // var listArray =  listArray.filter(function() {  // Remove item from HTML and listArray
-                        //     if (listArray /= targetElement.id) {
-                        //         return
-                        //     } 
-                        // });
+                            newDiv.appendChild(newContent);
+                            for (const item of listSet) {
+                                const currentDiv = document.getElementById("div1");
+                                document.body.insertBefore(newDiv, currentDiv);
 
-                        console.log(newList);
-
-
-                        // const result = listArray.filter(targetElement => targetElement.id);
-
+                            };
+                            
+                            
+                        }
                     }
-
                     
                 });
-
-
+                
                 info.appendChild(movieId);
-                var myId = document.getElementById(movieId);
-                
-
+                // *** --- NEW CODE END --- ***
 
                 
-                // *** --- NEW CODE --- ***
-
-
-
                 // creating a list item that will contain the average vote score
                 var movieVoteAvg = document.createElement('li');
                 movieVoteAvg.innerText = result[0].results[i].vote_average;
                 info.appendChild(movieVoteAvg);
                 movieVoteAvg.classList.add('rating');
-
                 
                 // adding all the items to the list
                 card.appendChild(details);
 
                 // Creating the container
                 movieContainer.appendChild(card);
-            }
-
-
-            
-            
+            }         
         }
-
-
-
-
-        
-
-        
-        
-
-
-
-
-        
-        
-
-        
 
     </script>
     
