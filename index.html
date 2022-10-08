@@ -1,209 +1,53 @@
-<!-- By: Malcolm Tan & Gregory Osborne-->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="UTF-8">
-    <title>MDIA 3295 - Assignment 3</title>
-    
-    <link rel="stylesheet" type="text/css" href="styles/style.css">
+<title>MDIA 3295 - Assignment 3</title>
+<meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles/style.css"> 
 </head>
-<body onload="">
+<body>
     <div id="spinner"><!-- Loading Spinner --></div>
-	<h1>Popular Movies</h1>
-    <h2>Watch List</h2>
-    <ul id="div1">
-
-    </ul>
-    <form id="form">
-        <input class="search" id="search" placeholder="Search" type="text">
-    <div id="movie-container" class="data-container"></div>
-
-    <script>
-
-        
-        // Root of the Image
-        const imgRoot = 'https://image.tmdb.org/t/p/w200';
-
-
-        loadList(null);
-
-    
-        function loadList(searchParam) {
-            // loads the spinner when text is pushed through 
-            document.querySelector('#spinner').classList.add('movie-loading');
-
-            let endpoint;
-
-            // If search is null or nothing is passed,
-            // else, use this endpoint instead and call loadList()
-            if(searchParam === null) {
-                // this displays the most popular movies from themoviedb database
-                endpoint = 'https://api.themoviedb.org/3/movie/popular?api_key=e3c65e092c566a2c2108537a99ec0d1d&language=en-US&page=1';
-            } else {
-                // this allows users to search for a specific movie within the entire database
-                // encodeURI replaces characters in a string with escape sequences 
-                endpoint = 'https://api.themoviedb.org/3/search/movie?api_key=e3c65e092c566a2c2108537a99ec0d1d&language=en-US&page=1&query=' + encodeURI(searchParam);
-            } 
-                
-            // console.log(endpoint);
-
-            Promise.all([
-                // fetch endpoint to connect to the API
-                fetch(endpoint)
-            ])
-
-                .then(
-                    responses => Promise.all(responses.map(function (response) { 
-                        return response.json();
-                    }))
-                )
-
-                // Set the endpoint as data
-                .then((data) => {
-
-                    console.log(data);
-                    // set data to addToContainer so we can essentually use it
-                    addToContainer(data);
-
-                })
-
-                // catches an error if one is made in the Promise above
-                .catch((error) => {
-                    console.error('Error', error);
-                })
-
-                .finally(() => {
-                    document.querySelector('#spinner').classList.remove('movie-loading');
-                }); 
-        }
-
-
-        const listArray = [];
-        const listSet = new Set(listArray);
-        const newDiv = document.createElement("li");
-
-        // Using addToContainer function, pass the data from the endpoint and call "data" and set it as "result"
-        function addToContainer(result) {
-            
-            // Contains all the movies 
-            var movieContainer = document.querySelector('#movie-container');
-            // console.log(result[0].results.length
-
-            // Will loop the array and check the results 
-            // initialize with i=0 and i++ will loop and find the corresponding data by looking at the length of th4e results array
-            // Will grab the data that will be displayed on the page
-            for(let i=0; i < result[0].results.length; i++) {
-
-                // creating the main div
-                var card = document.createElement('div');
-                card.classList.add('movie');
-
-                // creating the list
-                var details = document.createElement('ul');
-                details.classList.add('details');
-
-                // creating the list item containing the image
-                var movieImg = document.createElement('li');
-                details.appendChild(movieImg);
-
-                // A tag will wrap the image and link users to Movies DB site
-                var link = document.createElement('a');
-                link.href = 'https://www.themoviedb.org/movie/' + result[0].results[i].id;
-                movieImg.appendChild(link);
-
-                // setting the image
-                var img = document.createElement('img');
-                img.src = imgRoot + result[0].results[i].poster_path; 
-                link.appendChild(img);
-                img.classList.add('img');
-
-                // creating list item that will contain the title
-                var movieName = document.createElement('li');
-                movieName.innerText = result[0].results[i].title;
-                movieName.classList.add('title');
-                details.appendChild(movieName);
-
-                // creating a div so I can flex the release date and the average vote
-                var info = document.createElement('div');
-                details.appendChild(info)
-                info.classList.add('info');
-
-                // creating a list item that will contain the release date
-                var releaseDate = document.createElement('li');
-                releaseDate.innerText = result[0].results[i].release_date;
-                info.appendChild(releaseDate);
-                releaseDate.classList.add('date');
-
-
-                // *** --- NEW CODE START --- ***
-
-                var movieId = document.createElement('button');
-                movieId.setAttribute("data-title", result[0].results[i].title)
-                movieId.id = result[0].results[i].id;
-
-                movieId.innerText = "Add";
-
-                movieId.addEventListener("click", function(event){
-                    event.preventDefault() //Dont do normal thing (stops refreshing page)
-
-                    var targetElement = event.target || event.srcElement;
-                    console.log(targetElement.id);
-
-
-                    if(listSet.has(targetElement.id)) {
-                
-                        listSet.delete(targetElement.id);
-
-                        const element = document.getElementById(targetElement.id).remove();
-                        console.log(listSet);
-                        
-                    } else {
-                        if (listSet.size >=6 ) {
-                            alert("6 Movie limit")
-                        } else {
-                            listSet.add(targetElement.id)
-                            console.log(listSet);
-
-                            // and give it some content
-                            // add the text node to the newly created div
-                            const newDiv = document.createElement("li");
-                            newDiv.id = targetElement.id;
-                            // add the newly created element and its content into the DOM
-                            const newContent = document.createTextNode(targetElement.getAttribute('data-title'));
-
-                            newDiv.appendChild(newContent);
-                            for (const item of listSet) {
-                                const currentDiv = document.getElementById("div1");
-                                document.body.insertBefore(newDiv, currentDiv);
-
-                            };
-                            
-                            
-                        }
-                    }
-                    
-                });
-                
-                info.appendChild(movieId);
-                // *** --- NEW CODE END --- ***
-
-                
-                // creating a list item that will contain the average vote score
-                var movieVoteAvg = document.createElement('li');
-                movieVoteAvg.innerText = result[0].results[i].vote_average;
-                info.appendChild(movieVoteAvg);
-                movieVoteAvg.classList.add('rating');
-                
-                // adding all the items to the list
-                card.appendChild(details);
-
-                // Creating the container
-                movieContainer.appendChild(card);
-            }         
-        }
-
-    </script>
-    
+    <div class="bg">
+        <header>
+            <nav>
+                <img class="logo" src="images/logo.png" alt="...">
+                <ul class="gn-items">
+                    <li class="search">
+                        <Form>
+                            <input placeholder="Search..."input></input>
+                        </Form>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <section class="landing">
+            <h1>Movie watchlists personalized by you, 4 U</h1>
+            <button class="btn">Learn How</button>
+        </section>
+    </div>
+    <section class="api">
+        <h2>Featured Movies</h2>
+        <div class="movie-layout">
+            <div class="watchlist">
+                <h3>Your Watchlist</h3>
+                <ul id="div1">
+                </ul>
+                <Form class="email">
+                    <input placeholder="Email..."input></input>
+                    <button class="btn">Send 2 U</button>
+                </Form>
+            </div>
+            <div id="movie-container" class="data-container"></div>
+        </div>
+    </section>
+    <footer>
+        <p>Developed by: <span>Malcolm &amp; Gregory</span></p>
+        <p>Designed by: <span>Linda &amp; Bana</span></p>
+    </footer>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/validate.js"></script>
 </body>
 </html>
